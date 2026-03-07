@@ -1,6 +1,7 @@
 import { MarkdownView, Notice, Plugin, TFile, requestUrl } from 'obsidian';
 
 import { BookSearchModal } from '@views/book_search_modal';
+import { factoryServiceProvider } from '@apis/base_api';
 import { BookSuggestModal } from '@views/book_suggest_modal';
 import { CursorJumper } from '@utils/cursor_jumper';
 import { Book } from '@models/book.model';
@@ -54,7 +55,11 @@ export default class BookSearchPlugin extends Plugin {
   // open modal for book search
   async searchBookMetadata(query?: string): Promise<Book> {
     const searchedBooks = await this.openBookSearchModal(query);
-    return await this.openBookSuggestModal(searchedBooks);
+    const selectedBook = await this.openBookSuggestModal(searchedBooks);
+
+    // Вариант Б: один detail-запрос только для выбранной книги
+    const provider = factoryServiceProvider(this.settings);
+    return provider.enrichBook ? await provider.enrichBook(selectedBook) : selectedBook;
   }
 
   async getRenderedContents(book: Book) {

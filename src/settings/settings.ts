@@ -35,6 +35,8 @@ export interface BookSearchPluginSettings {
   enableCoverImageEdgeCurl: boolean;
   coverImagePath: string;
   askForLocale: boolean;
+  litresLogin: string;
+  litresPassword: string;
 }
 
 export const DEFAULT_SETTINGS: BookSearchPluginSettings = {
@@ -56,6 +58,8 @@ export const DEFAULT_SETTINGS: BookSearchPluginSettings = {
   enableCoverImageEdgeCurl: true,
   coverImagePath: '',
   askForLocale: true,
+  litresLogin: '',
+  litresPassword: '',
 };
 
 export class BookSearchSettingTab extends PluginSettingTab {
@@ -166,6 +170,8 @@ export class BookSearchSettingTab extends PluginSettingTab {
     let preferredLocaleDropdownSetting: Setting;
     // eslint-disable-next-line prefer-const
     let coverImageEdgeCurlToggleSetting: Setting;
+    let litresSettingsSection: HTMLElement;
+
     const hideServiceProviderExtraSettingButton = () => {
       serviceProviderExtraSettingButton.addClass('book-search-plugin__hide');
     };
@@ -173,24 +179,22 @@ export class BookSearchSettingTab extends PluginSettingTab {
       serviceProviderExtraSettingButton.removeClass('book-search-plugin__hide');
     };
     const hideServiceProviderExtraSettingDropdown = () => {
-      if (preferredLocaleDropdownSetting !== undefined) {
-        preferredLocaleDropdownSetting.settingEl.addClass('book-search-plugin__hide');
-      }
+      preferredLocaleDropdownSetting?.settingEl.addClass('book-search-plugin__hide');
     };
     const showServiceProviderExtraSettingDropdown = () => {
-      if (preferredLocaleDropdownSetting !== undefined) {
-        preferredLocaleDropdownSetting.settingEl.removeClass('book-search-plugin__hide');
-      }
+      preferredLocaleDropdownSetting?.settingEl.removeClass('book-search-plugin__hide');
     };
     const hideCoverImageEdgeCurlToggle = () => {
-      if (coverImageEdgeCurlToggleSetting !== undefined) {
-        coverImageEdgeCurlToggleSetting.settingEl.addClass('book-search-plugin__hide');
-      }
+      coverImageEdgeCurlToggleSetting?.settingEl.addClass('book-search-plugin__hide');
     };
     const showCoverImageEdgeCurlToggle = () => {
-      if (coverImageEdgeCurlToggleSetting !== undefined) {
-        coverImageEdgeCurlToggleSetting.settingEl.removeClass('book-search-plugin__hide');
-      }
+      coverImageEdgeCurlToggleSetting?.settingEl.removeClass('book-search-plugin__hide');
+    };
+    const hideLitresSettings = () => {
+      litresSettingsSection?.addClass('book-search-plugin__hide');
+    };
+    const showLitresSettings = () => {
+      litresSettingsSection?.removeClass('book-search-plugin__hide');
     };
 
     const toggleServiceProviderExtraSettings = (
@@ -200,10 +204,18 @@ export class BookSearchSettingTab extends PluginSettingTab {
         showServiceProviderExtraSettingButton();
         hideServiceProviderExtraSettingDropdown();
         hideCoverImageEdgeCurlToggle();
+        hideLitresSettings();
+      } else if (serviceProvider === ServiceProvider.litres) {
+        hideServiceProviderExtraSettingButton();
+        hideServiceProviderExtraSettingDropdown();
+        hideCoverImageEdgeCurlToggle();
+        showLitresSettings();
       } else {
+        // google (default)
         hideServiceProviderExtraSettingButton();
         showServiceProviderExtraSettingDropdown();
         showCoverImageEdgeCurlToggle();
+        hideLitresSettings();
       }
     };
     new Setting(containerEl)
@@ -213,6 +225,7 @@ export class BookSearchSettingTab extends PluginSettingTab {
       .addDropdown(dropDown => {
         dropDown.addOption(ServiceProvider.google, `${ServiceProvider.google} (Global)`);
         dropDown.addOption(ServiceProvider.naver, `${ServiceProvider.naver} (Korean)`);
+        dropDown.addOption(ServiceProvider.litres, `${ServiceProvider.litres} (Russian)`); // 👈 новое
         dropDown.setValue(this.plugin.settings?.serviceProvider ?? ServiceProvider.google);
         dropDown.onChange(async value => {
           const newValue = value as ServiceProvider;
@@ -243,8 +256,7 @@ export class BookSearchSettingTab extends PluginSettingTab {
         dropDown
           .setValue(localeValue === DEFAULT_SETTINGS.localePreference ? defaultLocale : localeValue)
           .onChange(async value => {
-            const newValue = value;
-            this.plugin.settings.localePreference = newValue;
+            this.plugin.settings.localePreference = value;
             await this.plugin.saveSettings();
           });
       });
@@ -307,7 +319,7 @@ export class BookSearchSettingTab extends PluginSettingTab {
         try {
           new FolderSuggest(this.app, cb.inputEl);
         } catch {
-          // eslint-disable
+          /* eslint-disable */
         }
         cb.setPlaceholder('Enter the path (e.g., Images/Covers)')
           .setValue(this.plugin.settings.coverImagePath)
@@ -317,7 +329,7 @@ export class BookSearchSettingTab extends PluginSettingTab {
           });
       });
 
-    // Google API Settings
+    // ── Google API Settings ───────────────────────────────────────────
     this.createHeader('Google API Settings', containerEl);
     new Setting(containerEl)
       .setName('Description About Google API Settings')
@@ -330,11 +342,7 @@ export class BookSearchSettingTab extends PluginSettingTab {
       .setDesc('check whether API key is saved. It does not guarantee that the API key is valid or invalid.')
       .addButton(button => {
         button.setButtonText('API Check').onClick(async () => {
-          if (this.plugin.settings.apiKey.length) {
-            new Notice('API key exist.');
-          } else {
-            new Notice('API key does not exist.');
-          }
+          new Notice(this.plugin.settings.apiKey.length ? 'API key exist.' : 'API key does not exist.');
         });
       });
 
@@ -360,5 +368,16 @@ export class BookSearchSettingTab extends PluginSettingTab {
           new Notice('API key Saved');
         });
       });
+
+    // ── LitRes API Settings ───────────────────────────────────────────
+    litresSettingsSection = containerEl.createDiv();
+    this.createHeader('LitRes API Settings', litresSettingsSection);
+
+    new Setting(litresSettingsSection)
+      .setName('Поиск по русским книгам через LitRes')
+      .setDesc('Не требует регистрации. Поиск по электронным книгам на русском языке.');
+
+    // инициализация видимости секций при первом открытии настроек
+    toggleServiceProviderExtraSettings();
   }
 }

@@ -4,9 +4,11 @@ import { ServiceProvider } from '@src/constants';
 import { requestUrl } from 'obsidian';
 import { GoogleBooksApi } from './google_books_api';
 import { NaverBooksApi } from './naver_books_api';
+import { LitresApi } from './litres_api';
 
 export interface BaseBooksApiImpl {
   getByQuery(query: string, options?: Record<string, string>): Promise<Book[]>;
+  enrichBook?(book: Book): Promise<Book>;
 }
 
 class ConfigurationError extends Error {
@@ -23,6 +25,8 @@ export function factoryServiceProvider(settings: BookSearchPluginSettings): Base
     case ServiceProvider.naver:
       validateNaverSettings(settings);
       return new NaverBooksApi(settings.naverClientId, settings.naverClientSecret);
+    case ServiceProvider.litres:
+      return new LitresApi();
     default:
       throw new Error('Unsupported service provider.');
   }
