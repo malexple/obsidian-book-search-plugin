@@ -1,10 +1,10 @@
 {
-	"id": "obsidian-book-search-plugin",
-	"name": "Book Search",
+	"id": "obsidian-book-search-plugin-litres",
+	"name": "Book Search (with LitRes)",
 	"version": "0.7.5",
 	"minAppVersion": "0.15.0",
 	"description": "Helps you find books and create notes.",
-	"author": "anpigon",
-	"authorUrl": "https://github.com/anpigon",
+	"author": "malexple",
+	"authorUrl": "https://github.com/malexple",
 	"isDesktopOnly": false
 }

@@ -47,7 +47,7 @@ export const DEFAULT_SETTINGS: BookSearchPluginSettings = {
   useDefaultFrontmatter: true,
   defaultFrontmatterKeyType: DefaultFrontmatterKeyType.camelCase,
   templateFile: '',
-  serviceProvider: ServiceProvider.google,
+  serviceProvider: ServiceProvider.litres,
   naverClientId: '',
   naverClientSecret: '',
   localePreference: 'default',
