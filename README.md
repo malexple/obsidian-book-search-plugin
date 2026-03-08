@@ -102,14 +102,6 @@ Supports Google Books API, Naver Books API, and **LitRes** (Russian books, no au
 2. Open BRAT settings → Add Beta Plugin
 3. Enter: `https://github.com/malexple/obsidian-book-search-plugin`
 
-## How to install
-
-Click the link to install the Book Search plugin: [Install Link](https://obsidian.md/plugins?id=obsidian-book-search-plugin)
-
-Or, Search in the Obsidian Community plugin. And install it.
-
-<img width="700" src="https://user-images.githubusercontent.com/3969643/184918934-585375a9-7b25-4905-81c8-5f092ed74991.png">
-
 ### Enhancements: Cover Image Display in Search Results
 
 We've introduced a new setting that allows users to display cover images alongside book suggestions in the search results.
@@ -276,6 +268,6 @@ Feel free to contribute via [issues](https://github.com/anpigon/obsidian-book-se
 
 ## Support
 
-Buy me coffee on [buymeacoffee.com/anpigon](https://www.buymeacoffee.com/anpigon)
+If this plugin helped you :)
 
-<a href="https://www.buymeacoffee.com/anpigon" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="60"></a>
+**🇷🇺 Поддержать рублями:** [boosty.to/malexple](https://boosty.to/malexple)
