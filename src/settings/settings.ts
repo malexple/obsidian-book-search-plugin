@@ -370,7 +370,6 @@ export class BookSearchSettingTab extends PluginSettingTab {
       });
 
     // ── LitRes API Settings ───────────────────────────────────────────
-    litresSettingsSection = containerEl.createDiv();
     this.createHeader('LitRes API Settings', litresSettingsSection);
 
     new Setting(litresSettingsSection)
