@@ -37,6 +37,7 @@ export interface BookSearchPluginSettings {
   askForLocale: boolean;
   litresLogin: string;
   litresPassword: string;
+  bookMetadataServiceUrl: string;
 }
 
 export const DEFAULT_SETTINGS: BookSearchPluginSettings = {
@@ -60,6 +61,7 @@ export const DEFAULT_SETTINGS: BookSearchPluginSettings = {
   askForLocale: true,
   litresLogin: '',
   litresPassword: '',
+  bookMetadataServiceUrl: 'https://bookmetadata.ru',
 };
 
 export class BookSearchSettingTab extends PluginSettingTab {
@@ -196,6 +198,12 @@ export class BookSearchSettingTab extends PluginSettingTab {
     const showLitresSettings = () => {
       litresSettingsSection?.removeClass('book-search-plugin__hide');
     };
+    const hideBookMetadataSettings = () => {
+      bookMetadataSettingsSection?.addClass('book-search-plugin__hide');
+    };
+    const showBookMetadataSettings = () => {
+      bookMetadataSettingsSection?.removeClass('book-search-plugin__hide');
+    };
 
     const toggleServiceProviderExtraSettings = (
       serviceProvider: ServiceProvider = this.plugin.settings?.serviceProvider,
@@ -205,17 +213,26 @@ export class BookSearchSettingTab extends PluginSettingTab {
         hideServiceProviderExtraSettingDropdown();
         hideCoverImageEdgeCurlToggle();
         hideLitresSettings();
+        hideBookMetadataSettings();
       } else if (serviceProvider === ServiceProvider.litres) {
         hideServiceProviderExtraSettingButton();
         hideServiceProviderExtraSettingDropdown();
         hideCoverImageEdgeCurlToggle();
         showLitresSettings();
+        hideBookMetadataSettings();
+      } else if (serviceProvider === ServiceProvider.bookMetadata) {
+        hideServiceProviderExtraSettingButton();
+        hideServiceProviderExtraSettingDropdown();
+        hideCoverImageEdgeCurlToggle();
+        hideLitresSettings();
+        showBookMetadataSettings();
       } else {
         // google (default)
         hideServiceProviderExtraSettingButton();
         showServiceProviderExtraSettingDropdown();
         showCoverImageEdgeCurlToggle();
         hideLitresSettings();
+        hideBookMetadataSettings();
       }
     };
     new Setting(containerEl)
@@ -225,13 +242,25 @@ export class BookSearchSettingTab extends PluginSettingTab {
       .addDropdown(dropDown => {
         dropDown.addOption(ServiceProvider.google, `${ServiceProvider.google} (Global)`);
         dropDown.addOption(ServiceProvider.naver, `${ServiceProvider.naver} (Korean)`);
-        dropDown.addOption(ServiceProvider.litres, `${ServiceProvider.litres} (Russian)`); // 👈 новое
+        dropDown.addOption(ServiceProvider.litres, `${ServiceProvider.litres} (Russian)`);
+        dropDown.addOption(ServiceProvider.bookMetadata, `${ServiceProvider.bookMetadata} (Free, self-hostable)`); // 👈 новое
         dropDown.setValue(this.plugin.settings?.serviceProvider ?? ServiceProvider.google);
         dropDown.onChange(async value => {
           const newValue = value as ServiceProvider;
-          toggleServiceProviderExtraSettings(newValue);
+
+          // 1. Сначала сохраняем - это самое важное, и оно не должно зависеть
+          //    от того, упадёт ли ниже код переключения видимости блоков
           this.plugin.settings['serviceProvider'] = newValue;
           await this.plugin.saveSettings();
+
+          // 2. Потом обновляем видимость UI-блоков - если здесь ошибка,
+          //    настройка уже сохранена, просто пользователю нужно будет
+          //    переоткрыть вкладку настроек, чтобы увидеть актуальные блоки
+          try {
+            toggleServiceProviderExtraSettings(newValue);
+          } catch (err) {
+            console.error('Book Search: failed to toggle provider settings UI:', err);
+          }
         });
       })
       .addExtraButton(component => {
@@ -375,6 +404,29 @@ export class BookSearchSettingTab extends PluginSettingTab {
     new Setting(litresSettingsSection)
       .setName('Поиск по русским книгам через LitRes')
       .setDesc('Не требует регистрации. Поиск по электронным книгам на русском языке.');
+
+    // ── Book Metadata Service Settings ─────────────────────────────────
+    const bookMetadataSettingsSection = containerEl.createDiv();
+    this.createHeader('Book Metadata Service Settings', bookMetadataSettingsSection);
+
+    new Setting(bookMetadataSettingsSection)
+      .setName('О сервисе')
+      .setDesc(
+        'Бесплатный открытый API без регистрации: Open Library, Google Books, FantLab и другие источники в одной карточке. Можно поставить свой инстанс через Docker.',
+      );
+
+    new Setting(bookMetadataSettingsSection)
+      .setName('Server URL')
+      .setDesc('Публичный инстанс по умолчанию, либо адрес вашего собственного (см. self-hosting в README проекта).')
+      .addText(text =>
+        text
+          .setPlaceholder('https://bookmetadata.ru')
+          .setValue(this.plugin.settings.bookMetadataServiceUrl)
+          .onChange(async value => {
+            this.plugin.settings.bookMetadataServiceUrl = value.trim() || DEFAULT_SETTINGS.bookMetadataServiceUrl;
+            await this.plugin.saveSettings();
+          }),
+      );
 
     // инициализация видимости секций при первом открытии настроек
     toggleServiceProviderExtraSettings();

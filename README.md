@@ -69,6 +69,7 @@ SORT status DESC, file.ctime ASC
 | Провайдер | Язык | Авторизация |
 |-----------|------|-------------|
 | **LitRes** (по умолчанию) | 🇷🇺 Русский | Не требуется |
+| **Book Metadata Service** | 🌍 Все языки | Не требуется, можно self-host |
 | Google Books | 🌍 Все языки | Не требуется (API ключ опционально) |
 | Naver | 🇰🇷 Корейский | Client ID + Secret |
 
@@ -174,7 +175,9 @@ You can set the template file location.
 
 ### Service Provider
 
-Choose between **LitRes** (Russian, default), **Google Books** (global), or **Naver** (Korean).
+Choose between **LitRes** (Russian, default), **Book Metadata Service**
+(free, open-source, self-hostable - [bookmetadata.ru](https://bookmetadata.ru)
+or your own Docker instance), **Google Books** (global), or **Naver** (Korean).
 
 ### Cover Image Saving
 

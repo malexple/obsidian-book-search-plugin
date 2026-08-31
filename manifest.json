@@ -1,9 +1,9 @@
 {
 	"id": "obsidian-book-search-plugin-litres",
 	"name": "Book Search (with LitRes)",
-	"version": "0.7.5",
+	"version": "0.8.0",
 	"minAppVersion": "0.15.0",
-	"description": "Helps you find books and create notes.",
+	"description": "Helps you find books and create notes. Supports LitRes, Book Metadata Service (free, self-hostable), Google Books, and Naver.",
 	"author": "malexple",
 	"authorUrl": "https://github.com/malexple",
 	"isDesktopOnly": false

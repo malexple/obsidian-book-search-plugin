@@ -5,6 +5,7 @@ import { requestUrl } from 'obsidian';
 import { GoogleBooksApi } from './google_books_api';
 import { NaverBooksApi } from './naver_books_api';
 import { LitresApi } from './litres_api';
+import { BookMetadataServiceApi } from './book_metadata_service_api';
 
 export interface BaseBooksApiImpl {
   getByQuery(query: string, options?: Record<string, string>): Promise<Book[]>;
@@ -27,6 +28,8 @@ export function factoryServiceProvider(settings: BookSearchPluginSettings): Base
       return new NaverBooksApi(settings.naverClientId, settings.naverClientSecret);
     case ServiceProvider.litres:
       return new LitresApi();
+    case ServiceProvider.bookMetadata:
+      return new BookMetadataServiceApi(settings.bookMetadataServiceUrl);
     default:
       throw new Error('Unsupported service provider.');
   }
